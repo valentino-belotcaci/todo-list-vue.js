@@ -4,11 +4,12 @@ const morgan = require('morgan')
 const app = express()
 
 app.use(morgan('combined'))
+app.use(express.json())
 app.use(cors())
 
-app.get('/status', (req, res) => 
+app.post('/register', (req, res) => 
     res.send({
-        message: 'Hello world'
+        message: `Hello ${req.body.email}, your user was registered!`
     })
 )//get request to a status inpoint
 
