@@ -1,6 +1,6 @@
 <template>
   <div class="register-container">
-    <h1>Registration</h1>
+    <h1>Login</h1>
     <div class="form-box">
       <input
         type="email"
@@ -16,11 +16,13 @@
         v-model="password"
         class="input-field"
       />
-      <button @click="register" class="btn">Register</button>
+      <button @click="login" class="btn">Login</button>
 
       <p class="login-text">
-        Already have an account?
-        <router-link to="/login" class="login-link">Login here</router-link>
+        Want to create a new account?
+        <router-link to="/register" class="login-link"
+          >Register here</router-link
+        >
       </p>
 
       <p v-if="errorMessage" class="error-text">{{ errorMessage }}</p>
@@ -28,23 +30,19 @@
     </div>
   </div>
 </template>
-
 <script>
 import AuthenticationService from "@/services/AuthenticationService";
 export default {
   methods: {
-    async register() {
-      this.errorMessage = "";
-      this.successMessage = "";
-
+    async login() {
       try {
-        const response = await AuthenticationService.register({
+        const response = await AuthenticationService.login({
           email: this.email,
           password: this.password,
         });
+        console.log(response.data);
         this.successMessage = response.data.message;
       } catch (err) {
-        // show backend message if available
         this.errorMessage =
           err.response?.data?.message ||
           err.response?.data?.error ||
