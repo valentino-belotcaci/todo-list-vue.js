@@ -1,73 +1,78 @@
 <template>
-  <div class="register-container">
-    <h1>Login</h1>
+  <div class="create-container">
+    <h1>Create New Todo</h1>
+
     <div class="form-box">
       <input
-        type="email"
-        name="email"
-        placeholder="Email"
-        v-model="email"
+        v-model="title"
+        type="text"
+        placeholder="Title"
         class="input-field"
       />
-      <input
-        type="password"
-        name="password"
-        placeholder="Password"
-        v-model="password"
-        class="input-field"
-      />
-      <button @click="login" class="btn">Login</button>
+      <textarea
+        v-model="description"
+        placeholder="Description (optional)"
+        class="textarea-field"
+      ></textarea>
 
-      <p class="login-text">
-        Want to create a new account?
-        <router-link to="/register" class="login-link"
-          >Register here</router-link
-        >
-      </p>
+      <button @click="createTodo" class="btn">Save Todo</button>
+      <router-link to="/todos" class="back-link">Back to Todos</router-link>
 
       <p v-if="errorMessage" class="error-text">{{ errorMessage }}</p>
       <p v-if="successMessage" class="success-text">{{ successMessage }}</p>
     </div>
   </div>
 </template>
+
 <script>
-import AuthenticationService from "@/services/AuthenticationService";
+import axios from "axios";
+
 export default {
-  methods: {
-    async login() {
-      try {
-        const response = await AuthenticationService.login({
-          email: this.email,
-          password: this.password,
-        });
-        localStorage.setItem("token", response.data.token);
-        //console.log(response.data);
-        console.log("Redirecting to todos...");
-        this.successMessage = response.data.message;
-        this.$router.push("/todos");
-      } catch (err) {
-        this.errorMessage =
-          err.response?.data?.message ||
-          err.response?.data?.error ||
-          "Unexpected error";
-      }
-    },
-  },
   data() {
     return {
-      email: "",
-      password: "",
+      title: "",
+      description: "",
       errorMessage: "",
       successMessage: "",
     };
   },
+  methods: {
+    async createTodo() {
+      this.errorMessage = "";
+      this.successMessage = "";
+
+      if (!this.title) {
+        this.errorMessage = "Title is required.";
+        return;
+      }
+
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.post(
+          "http://localhost:3000/todos",
+          { title: this.title, description: this.description },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        console.log(res.data);
+
+        this.successMessage = "Todo created successfully!";
+        this.title = "";
+        this.description = "";
+
+        setTimeout(() => this.$router.push("/todos"), 800);
+      } catch (err) {
+        this.errorMessage =
+          err.response?.data?.message ||
+          err.response?.data?.error ||
+          "Failed to create todo.";
+      }
+    },
+  },
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-
 <style scoped>
-.register-container {
+.create-container {
   background-color: #faf1d9;
   height: 100vh;
   display: flex;
@@ -90,15 +95,22 @@ h1 {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 300px;
 }
 
-.input-field {
-  width: 250px;
+.input-field,
+.textarea-field {
+  width: 100%;
   padding: 10px;
   margin: 10px 0;
   border: none;
   border-radius: 6px;
   outline: none;
+  resize: none;
+}
+
+.textarea-field {
+  height: 80px;
 }
 
 .btn {
@@ -116,19 +128,14 @@ h1 {
   background-color: #555;
 }
 
-.login-text {
+.back-link {
   margin-top: 15px;
   color: #333;
   font-size: 14px;
-}
-
-.login-link {
-  color: #333;
-  font-weight: bold;
   text-decoration: underline;
 }
 
-.login-link:hover {
+.back-link:hover {
   color: #555;
 }
 

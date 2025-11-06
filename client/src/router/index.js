@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import UserRegister from "@/components/UserRegister";
 import UserLogin from "@/components/UserLogin";
+import TodoListPage from "@/components/TodoListPage";
+import TodoNew from "@/components/TodoNew";
 
 const routes = [
   {
@@ -18,6 +20,16 @@ const routes = [
     path: "/login",
     name: "login",
     component: UserLogin,
+  },
+  {
+    path: "/todos",
+    name: "Todos",
+    component: TodoListPage,
+  },
+  {
+    path: "/todos/new",
+    name: "addTodo",
+    component: TodoNew,
   },
   {
     path: "/about",
