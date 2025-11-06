@@ -20,7 +20,7 @@
 
       <p class="login-text">
         Already have an account?
-        <router-link to="/login" class="login-link">Login here</router-link>
+        <router-link to="/" class="login-link">Login here</router-link>
       </p>
 
       <p v-if="errorMessage" class="error-text">{{ errorMessage }}</p>
