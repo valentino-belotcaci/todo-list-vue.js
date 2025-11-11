@@ -5,7 +5,7 @@ const morgan = require('morgan')
 const app = express()
 const mongoose = require('mongoose')
 const User = require('../models/User')
-const Todo = require('../models/Todo');
+const Todo = require('../models/TodoList');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt')
 const auth = require('../middleware/auth');//protect specific routes, eg: /todos
@@ -107,6 +107,103 @@ app.post('/todos', auth, async (req, res) => {
         res.status(500).json({ error: 'Server error' })
     }
 });
+
+app.get('/todos/:id', auth, async (req, res) => {
+    try {
+        const list = await Todo.findById(req.params.id);
+        
+        if (!list) 
+            return res.status(404).json({ message: 'Todo not found' });
+    
+        console.log(list)
+        res.status(200).json({
+            message: 'Found todo successfully',
+            todos: list.todos
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+    }
+  });
+
+// Add a new sub-todo to a list
+app.post('/todos/:id', auth, async (req, res) => {
+    try {
+
+      const { title, description, priority } = req.body;
+
+      if (!title) 
+        return res.status(400).json({ message: 'Missing title' });
+  
+      const list = await Todo.findById(req.params.id);
+
+      if (!list) 
+        return res.status(404).json({ message: 'Todo list not found' });
+  
+      const newTodo = {
+        title,
+        description,
+        completed: false,
+        date: new Date().toLocaleString('en-GB', { timeZone: 'Europe/Rome' }),
+        priority: priority || 1,
+      };
+  
+      list.todos.push(newTodo);
+      await list.save();
+  
+      res.status(201).json({ message: 'Task added', todo: newTodo });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Server error' });
+    }
+  });
+  
+  
+  // Update an existing sub-todo
+  app.put('/todos/:id/:taskId', auth, async (req, res) => {
+    try {
+      const { id, taskId } = req.params;
+      const updates = req.body;
+  
+      const list = await Todo.findById(id);
+      if (!list) return res.status(404).json({ message: 'Todo list not found' });
+  
+      const todo = list.todos.id(taskId);
+      if (!todo) return res.status(404).json({ message: 'Task not found' });
+  
+      Object.assign(todo, updates);
+      await list.save();
+  
+      res.status(200).json({ message: 'Task updated', todo });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Server error' });
+    }
+  });
+  
+  
+  // Delete a sub-todo
+  app.delete('/todos/:id/:taskId', auth, async (req, res) => {
+    try {
+      const { id, taskId } = req.params;
+  
+      const list = await Todo.findById(id);
+      if (!list) return res.status(404).json({ message: 'Todo list not found' });
+  
+      const todo = list.todos.id(taskId);
+      if (!todo) return res.status(404).json({ message: 'Task not found' });
+  
+      todo.remove();
+      await list.save();
+  
+      res.status(200).json({ message: 'Task deleted' });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Server error' });
+    }
+  });
+  
+  
 
 
 // connect to MongoDB

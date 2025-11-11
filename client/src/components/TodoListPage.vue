@@ -16,8 +16,14 @@
         class="todo-item"
         @click="viewTodo(todo._id)"
       >
-        <h3>{{ todo.title }}</h3>
-        <p>{{ todo.description }}</p>
+        <div class="todo-header">
+          <h3 class="todo-title">{{ todo.title }}</h3>
+        </div>
+
+        <div class="todo-row">
+          <p class="todo-description">{{ todo.description }}</p>
+          <p class="todo-date">{{ formatDate(todo.date) }}</p>
+        </div>
       </li>
     </ul>
   </div>
@@ -28,6 +34,11 @@ import axios from "axios";
 
 export default {
   methods: {
+    formatDate(dateString) {
+      return new Date(dateString).toLocaleDateString("en-GB", {
+        timeZone: "Europe/Rome",
+      });
+    },
     viewTodo(id) {
       this.$router.push(`/todos/${id}`);
     },
@@ -128,5 +139,42 @@ h1 {
   color: red;
   text-align: center;
   margin-bottom: 10px;
+}
+
+.todo-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.todo-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.todo-description {
+  color: #333;
+  font-size: 14px;
+  flex: 1;
+  text-align: left;
+}
+
+.todo-date {
+  font-size: 13px;
+  color: #555;
+  white-space: nowrap;
+  margin-left: 15px;
+}
+
+.todo-header {
+  margin-bottom: 6px;
+  text-align: left;
+}
+
+.todo-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 </style>

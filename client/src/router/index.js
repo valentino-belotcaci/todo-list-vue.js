@@ -3,6 +3,7 @@ import UserRegister from "@/components/UserRegister";
 import UserLogin from "@/components/UserLogin";
 import TodoListPage from "@/components/TodoListPage";
 import TodoNew from "@/components/TodoNew";
+import TodoView from "@/components/TodoView";
 
 const routes = [
   {
@@ -24,6 +25,11 @@ const routes = [
     path: "/todos/new",
     name: "addTodo",
     component: TodoNew,
+  },
+  {
+    path: "/todos/:id",
+    name: "ViewTodo",
+    component: TodoView,
   },
 ];
 
