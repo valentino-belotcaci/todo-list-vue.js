@@ -200,7 +200,10 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
+body {
+  background-color: #faf1d9 !important;
+}
 .detail-container {
   background-color: white;
   min-height: 100vh;
