@@ -10,7 +10,6 @@
       </p>
 
       <div class="title-search">
-        <h3>To-Do List</h3>
         <div class="search-wrap">
           <input
             v-model="search"
@@ -119,8 +118,10 @@ export default {
           `http://localhost:3000/todos/${this.$route.params.id}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        this.list = res.data.todos ? res.data : { todos: res.data };
-        this.list.todos = (this.list.todos || []).map((t) => ({
+
+        this.list = res.data || {};
+        this.list.todos = Array.isArray(this.list.todos) ? this.list.todos : [];
+        this.list.todos = this.list.todos.map((t) => ({
           priority: t.priority ?? 1,
           date: t.date || new Date().toISOString(),
           title: t.title || "",
@@ -150,19 +151,6 @@ export default {
         this.errorMessage = "Failed to add task.";
       }
     },
-    async toggle(t) {
-      try {
-        const token = localStorage.getItem("token");
-        await axios.put(
-          `http://localhost:3000/todos/${this.$route.params.id}/${t._id}`,
-          { completed: !t.completed },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        await this.loadList();
-      } catch {
-        this.errorMessage = "Failed to toggle task.";
-      }
-    },
     async finishEdit(t) {
       try {
         const token = localStorage.getItem("token");
@@ -188,10 +176,18 @@ export default {
         this.errorMessage = "Failed to delete task.";
       }
     },
+    async toggle(t, next) {
+      const token = localStorage.getItem("token");
+      await axios.put(
+        `http://localhost:3000/todos/${this.$route.params.id}/${t._id}`,
+        { completed: next ?? !t.completed },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    },
     async toggleAll() {
-      const allChecked = this.visibleTodos.every((t) => t.completed);
-      for (const t of this.visibleTodos)
-        await this.toggle({ ...t, completed: !allChecked });
+      const target = !this.list.todos.every((t) => t.completed); // true = check all, false = uncheck all
+      await Promise.all(this.list.todos.map((t) => this.toggle(t, target)));
+      await this.loadList();
     },
     async clearCompleted() {
       const done = this.list.todos.filter((t) => t.completed);
@@ -214,6 +210,12 @@ export default {
   gap: 24px;
   font-family: "Inter", sans-serif;
   align-items: center;
+  width: 90%;
+  max-width: 620px;
+  margin: 0 auto;
+  border-radius: 7px;
+  padding: 20px 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
 }
 .header {
   width: 90%;
@@ -223,10 +225,12 @@ export default {
   font-size: 28px;
   color: #333;
   margin: 0;
+  text-align: left;
 }
 .list-sub {
   margin: 6px 0 18px;
   color: #333;
+  text-align: left;
 }
 .list-date {
   color: #555;
@@ -246,7 +250,7 @@ export default {
   display: flex;
   align-items: center;
   gap: 8px;
-  width: 49%;
+  width: 100%;
 }
 .search-wrap input {
   width: 100%;

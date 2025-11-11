@@ -109,7 +109,8 @@ export default {
 }
 .filters button.is-active,
 .filters button:hover {
-  background-color: #f2dfab;
+  background-color: #f7c948;
   transition: 0.5s;
+  box-shadow: 0 0 3px #b38b00 inset;
 }
 </style>

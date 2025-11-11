@@ -119,7 +119,7 @@ export default {
 .todo-li span {
   word-break: break-word;
   overflow-wrap: break-word;
-  display: inline-block;
+  text-align: left;
   width: 85%;
 }
 .item-date {
